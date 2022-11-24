@@ -1,0 +1,14 @@
+<p><%= notice %></p>
+
+<h1>Tags</h1>
+
+<div id="articles">
+  <% @tags.each do |tag| %>
+    <p>
+      <%= tag.name %>
+    </p>
+    <%= link_to "Show this tag", tag %>
+    <% end %>
+</div>
+
+<%= link_to "New tag", new_tag_path %>

@@ -1,0 +1,18 @@
+<div id="<%= dom_id article %>">
+  <p>
+    <strong>Name:</strong>
+    <%= article.name %>
+  </p>
+
+  <p>
+    <strong>Body:</strong>
+    <%= article.body %>
+  </p>
+
+  <p> 
+    <% article.tags.each do |tag| %>
+      <%= tag.name %>
+    <% end%>
+  </p>
+
+</div>

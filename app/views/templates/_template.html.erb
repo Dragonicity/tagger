@@ -1,0 +1,13 @@
+<div id="<%= dom_id template %>">
+  <p>
+    <strong>Body:</strong>
+    <%= template.body %>
+  </p>
+
+ <p> 
+    <% template.tags.each do |tag| %>
+      <%= tag.name %>
+    <% end%>
+  </p>
+
+</div>
