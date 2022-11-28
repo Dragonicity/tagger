@@ -2,6 +2,7 @@ class Article < ApplicationRecord
   extend Mobility
   translates :name, type: :string
 
+  belongs_to :account
   has_many :taggings
   has_many :tags, through: :taggings
 
