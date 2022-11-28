@@ -3,7 +3,7 @@ class Article < ApplicationRecord
   translates :name, type: :string
 
   belongs_to :account
-  has_many :taggings
+  has_many :taggings, as: :taggable
   has_many :tags, through: :taggings
 
   def self.tagged_with(name)
