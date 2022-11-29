@@ -2,7 +2,8 @@ class Article < ApplicationRecord
   extend Mobility
   translates :name, type: :string
 
-  has_many :taggings
+  belongs_to :account
+  has_many :taggings, as: :taggable
   has_many :tags, through: :taggings
 
   def self.tagged_with(name)

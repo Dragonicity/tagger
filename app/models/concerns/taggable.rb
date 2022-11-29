@@ -1,4 +1,4 @@
-module Taggable   
+module Taggable
   extend ActiveSupport::Concern
 
   included do
@@ -12,22 +12,47 @@ module Taggable
       class_attribute :tag_types
       self.tag_types = tag_types
 
-      self.tag_types.each do |tag_type|
+      def self.tagged_with(name)
+        tag = Tag.i18n.find_by(name: name)
+        return self.none unless tag
 
-      #http://railscasts.com/episodes/382-tagging
-     
-      #def self.tagged_with(name)
-      #  Tag.find_by_name!(name).articles
-      #end
+        joins(:taggings).where(taggings: { tag_id: tag.id })
+      end
 
-      #def self.tag_counts
-      #  Tag.select("tags.*, count(taggings.tag_id) as count").
-      #    joins(:taggings).group("taggings.tag_id")
-      #end
+      self.tag_types.map(&:to_s).each do |tags_type|
+        tag_type = tags_type.to_s.singularize
+        tagging_type = "#{tag_type}_taggings".to_sym
 
-      #def tag_list
-      #  tags.map(&:name).join(", ")
-      #end
+        class_eval do
+          has_many tagging_type, -> { includes(:tag).where(context: tags_type) },
+                   as: :taggable,
+                   class_name: 'Tagging',
+                   dependent: :destroy
+
+          has_many tags_type.to_sym,
+                   class_name: 'Tag',
+                   through: tagging_type,
+                   source: :tag
+        end
+
+        define_singleton_method "#{tag_type}_counts" do
+          Tagging.where(
+            taggable_type: self.to_s,
+            context: tags_type
+          ).group("taggings.tag_id").count
+        end
+
+        define_method "#{tag_type}_list" do
+          send(tags_type).map(&:name).join(", ")
+        end
+
+        define_method "#{tag_type}_list=" do |comma_separated_tag_names|
+          assignment_args = comma_separated_tag_names.split(", ").map do |tag_name|
+            Tag.i18n.find_or_initialize_by(name: tag_name)
+          end
+
+          send("#{tags_type}=", assignment_args)
+        end
 
       #def tag_list=(names)
       #  self.tags = names.split(", ").map do |name|
@@ -36,16 +61,16 @@ module Taggable
 
       #  Requirements
       #
-      # 1. Create class/instance methods based on the above to provide basic polymorphic 
+      # 1. Create class/instance methods based on the above to provide basic polymorphic
       #    tagging functionality including context setting (don't use method_missing).
       #
       # 2. Write Minitest tests for the Template model and concern.
       #
-      # 3. Consider how Google translate (if thi sis the best solution) can be integrated to 
-      #    generate translations on the fly in French and Spanish. Consider the case of a 
-      #    Spanish user entering a Tag in ES_CO locale: what would a general function look 
-      #    like that filled in the base EN locale translation (and handle the case where a 
-      #    translation is not found)and then provided translations for other locales defined 
+      # 3. Consider how Google translate (if thi sis the best solution) can be integrated to
+      #    generate translations on the fly in French and Spanish. Consider the case of a
+      #    Spanish user entering a Tag in ES_CO locale: what would a general function look
+      #    like that filled in the base EN locale translation (and handle the case where a
+      #    translation is not found)and then provided translations for other locales defined
       #    for the app. See tag.rb and language_helper.rb.
       end
     end
