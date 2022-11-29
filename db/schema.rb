@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_11_14_054111) do
+ActiveRecord::Schema[7.0].define(version: 2022_11_29_082449) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -51,7 +51,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_11_14_054111) do
   end
 
   create_table "taggings", force: :cascade do |t|
-    t.integer "account_id", null: false
+    t.integer "account_id"
     t.integer "tag_id", null: false
     t.string "taggable_type"
     t.integer "taggable_id"
