@@ -12,11 +12,13 @@ module Taggable
       class_attribute :tag_types
       self.tag_types = tag_types
 
-      def self.tagged_with(name)
+      def self.tagged_with(name, context: nil)
         tag = Tag.i18n.find_by(name: name)
         return self.none unless tag
 
-        joins(:taggings).where(taggings: { tag_id: tag.id })
+        taggings_where_query =  { tag_id: tag.id }
+        taggings_where_query[:context] = context if context
+        joins(:taggings).where(taggings: taggings_where_query)
       end
 
       self.tag_types.map(&:to_s).each do |tags_type|
