@@ -54,11 +54,6 @@ module Taggable
           send("#{tags_type}=", assignment_args)
         end
 
-      #def tag_list=(names)
-      #  self.tags = names.split(", ").map do |name|
-      #    Tag.where(name: name.strip).first_or_create!
-      #end
-
       #  Requirements
       #
       # 1. Create class/instance methods based on the above to provide basic polymorphic
