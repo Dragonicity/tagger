@@ -29,6 +29,7 @@ module Taggable
           has_many tagging_type, -> { includes(:tag).where(context: tags_type) },
                    as: :taggable,
                    class_name: 'Tagging',
+                   inverse_of: :taggable,
                    dependent: :destroy
 
           has_many tags_type.to_sym,
