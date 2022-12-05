@@ -49,12 +49,13 @@ module Taggable
           send(tags_type).map(&:name).join(", ")
         end
 
-        define_method "#{tag_type}_list=" do |comma_separated_tag_names|
+        define_method "apply_#{tags_type}" do |comma_separated_tag_names, account_id|
           assignment_args = comma_separated_tag_names.split(", ").map do |tag_name|
-            Tag.i18n.find_or_initialize_by(name: tag_name)
+            Tagging.new(tag: Tag.i18n.find_or_create_by!(name: tag_name), account_id: account_id, context: tags_type)
           end
 
-          send("#{tags_type}=", assignment_args)
+          send("#{tagging_type}=", assignment_args)
+          # send("#{tags_type}=", assignment_args.map(&:tag))
         end
 
       #  Requirements

@@ -8,11 +8,15 @@ class TaggableTest < ActiveSupport::TestCase
     taggable_on :ingredients, :flavors
   end
 
+  setup do
+    @account = Account.create!
+  end
+
   test "#tag_type_list=" do
-    mock = MockTaggable.new(
-      ingredient_list: "salt, pasta",
-      flavor_list: "salty, cosy"
-    )
+    mock = MockTaggable.new
+    mock.apply_ingredients("salt, pasta", @account.id)
+    mock.apply_flavors("salty, cosy", @account.id)
+    mock.save!
 
     assert_equal ["salt", "pasta"], mock.ingredients.map(&:name)
     assert_equal ["salt", "pasta"], mock.ingredient_taggings.map(&:tag).map(&:name)
@@ -29,10 +33,9 @@ class TaggableTest < ActiveSupport::TestCase
   end
 
   test "#tag_type_list" do
-    mock = MockTaggable.new(
-      ingredient_list: "salt, pasta",
-      flavor_list: "salty, cosy"
-    )
+    mock = MockTaggable.new
+    mock.apply_ingredients("salt, pasta", @account.id)
+    mock.apply_flavors("salty, cosy", @account.id)
 
     mock.save!
 
@@ -44,15 +47,15 @@ class TaggableTest < ActiveSupport::TestCase
   end
 
   test ".tagged_with" do
-    mock_1 = MockTaggable.create!(
-      ingredient_list: "salt, pasta",
-      flavor_list: "salty, cosy"
-    )
+    mock_1 = MockTaggable.new
+    mock_1.apply_ingredients("salt, pasta", @account.id)
+    mock_1.apply_flavors("salty, cosy", @account.id)
+    mock_1.save!
 
-    mock_2 = MockTaggable.create!(
-      ingredient_list: "pasta, tomato, cosy",
-      flavor_list: "bland"
-    )
+    mock_2 = MockTaggable.new
+    mock_2.apply_ingredients("pasta, tomato, cosy", @account.id)
+    mock_2.apply_flavors("bland", @account.id)
+    mock_2.save!
 
     assert_equal [mock_1, mock_2], MockTaggable.tagged_with("pasta").to_a
     assert_equal [mock_1], MockTaggable.tagged_with("salt").to_a
@@ -63,15 +66,15 @@ class TaggableTest < ActiveSupport::TestCase
   end
 
   test ".tag_type_counts" do
-    mock_1 = MockTaggable.create!(
-      ingredient_list: "salt, pasta",
-      flavor_list: "salty, cosy"
-    )
+    mock_1 = MockTaggable.new
+    mock_1.apply_ingredients("salt, pasta", @account.id)
+    mock_1.apply_flavors("salty, cosy", @account.id)
+    mock_1.save!
 
-    mock_2 = MockTaggable.create!(
-      ingredient_list: "pasta, tomato, cosy",
-      flavor_list: "bland"
-    )
+    mock_2 = MockTaggable.new
+    mock_2.apply_ingredients("pasta, tomato, cosy", @account.id)
+    mock_2.apply_flavors("bland", @account.id)
+    mock_2.save!
 
     pasta_tag = Tag.i18n.find_by(name: "pasta")
     salt_tag = Tag.i18n.find_by(name: "salt")
