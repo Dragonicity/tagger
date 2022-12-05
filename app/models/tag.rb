@@ -11,6 +11,8 @@ class Tag < ApplicationRecord
   scope :most_used, ->(limit = 20) { order('taggings_count desc').limit(limit) }
   scope :least_used, ->(limit = 20) { order('taggings_count asc').limit(limit) }
 
+  after_commit :enqueue_name_translation, on: :create
+
   after_save do |tag|
     begin
      # Tag.create_tag_translations(tag)
@@ -36,5 +38,9 @@ class Tag < ApplicationRecord
 
   end
 
+  private
 
+  def enqueue_name_translation
+    TagTranslationWorker.perform_async(id, Mobility.locale)
+  end
 end
