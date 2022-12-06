@@ -41,6 +41,6 @@ class Tag < ApplicationRecord
   private
 
   def enqueue_name_translation
-    TagTranslationWorker.perform_async(id, Mobility.locale)
+    TagTranslationWorker.perform_async(id, Mobility.locale.to_s)
   end
 end
