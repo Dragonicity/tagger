@@ -49,7 +49,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 gem 'mobility'
-gem 'google-cloud-translate-v3'
+gem 'google-cloud-translate'
 
 gem 'sidekiq'
 
