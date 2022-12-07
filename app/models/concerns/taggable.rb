@@ -12,11 +12,13 @@ module Taggable
       class_attribute :tag_types
       self.tag_types = tag_types
 
-      def self.tagged_with(name)
+      def self.tagged_with(name, context: nil)
         tag = Tag.i18n.find_by(name: name)
         return self.none unless tag
 
-        joins(:taggings).where(taggings: { tag_id: tag.id })
+        taggings_where_query =  { tag_id: tag.id }
+        taggings_where_query[:context] = context if context
+        joins(:taggings).where(taggings: taggings_where_query)
       end
 
       self.tag_types.map(&:to_s).each do |tags_type|
@@ -27,6 +29,7 @@ module Taggable
           has_many tagging_type, -> { includes(:tag).where(context: tags_type) },
                    as: :taggable,
                    class_name: 'Tagging',
+                   inverse_of: :taggable,
                    dependent: :destroy
 
           has_many tags_type.to_sym,
@@ -46,18 +49,14 @@ module Taggable
           send(tags_type).map(&:name).join(", ")
         end
 
-        define_method "#{tag_type}_list=" do |comma_separated_tag_names|
+        define_method "apply_#{tags_type}" do |comma_separated_tag_names, account_id|
           assignment_args = comma_separated_tag_names.split(", ").map do |tag_name|
-            Tag.i18n.find_or_initialize_by(name: tag_name)
+            Tagging.new(tag: Tag.i18n.find_or_create_by!(name: tag_name), account_id: account_id, context: tags_type)
           end
 
-          send("#{tags_type}=", assignment_args)
+          send("#{tagging_type}=", assignment_args)
+          # send("#{tags_type}=", assignment_args.map(&:tag))
         end
-
-      #def tag_list=(names)
-      #  self.tags = names.split(", ").map do |name|
-      #    Tag.where(name: name.strip).first_or_create!
-      #end
 
       #  Requirements
       #
